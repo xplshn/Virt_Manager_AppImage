@@ -19,13 +19,10 @@ chmod +x pelf
 
 echo "Getting Arch Linux bootstrap archive..."
 curl -fsSL "https://archive.archlinux.org/iso/" -o index.html
-
 BOOTSTRAP_DATE=$(tail -n 3 index.html | awk '{print $2}' | cut -d'/' -f1 | cut -d'"' -f2 | tail -n1)
 BOOTSTRAP_URL="https://archive.archlinux.org/iso/${BOOTSTRAP_DATE}/archlinux-bootstrap-x86_64.tar.zst"
-
 echo "Downloading bootstrap: ${BOOTSTRAP_URL}"
 curl -fsSL "${BOOTSTRAP_URL}" -o "archlinux-bootstrap-x86_64.tar.zst"
-
 mkdir -p "$ARCH_DIR"
 tar xf archlinux-bootstrap-x86_64.tar.zst -C "$ARCH_DIR/"
 
