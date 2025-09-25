@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -eux
 
 WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
 ARCH_DIR="$WORKSPACE/arch"
