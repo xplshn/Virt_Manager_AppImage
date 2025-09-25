@@ -5,9 +5,11 @@ WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
 ARCH_DIR="$WORKSPACE/arch"
 BOOTSTRAP_DIR="$ARCH_DIR/root.x86_64"
 
+# deps
 sudo apt-get update
 sudo apt-get install -y desktop-file-utils debootstrap schroot perl git wget xz-utils bubblewrap autoconf coreutils
 
+# tooling
 echo "Downloading appimagetool..."
 curl -fsSL "https://github.com/pkgforge-dev/appimagetool-uruntime/releases/download/continuous/appimagetool-x86_64.AppImage" -o appimagetool
 chmod +x appimagetool
@@ -17,15 +19,22 @@ PELF_LATEST_URL=$(curl -fsSL "https://api.github.com/repos/xplshn/pelf/releases/
 curl -fsSL "${PELF_LATEST_URL}" -o pelf
 chmod +x pelf
 
+# archLinux
 echo "Getting Arch Linux bootstrap archive..."
 curl -fsSL "https://archive.archlinux.org/iso/" -o index.html
+
+# get URLs
 BOOTSTRAP_DATE=$(tail -n 3 index.html | awk '{print $2}' | cut -d'/' -f1 | cut -d'"' -f2 | tail -n1)
 BOOTSTRAP_URL="https://archive.archlinux.org/iso/${BOOTSTRAP_DATE}/archlinux-bootstrap-x86_64.tar.zst"
+
 echo "Downloading bootstrap: ${BOOTSTRAP_URL}"
 curl -fsSL "${BOOTSTRAP_URL}" -o "archlinux-bootstrap-x86_64.tar.zst"
+
+# extract
 mkdir -p "$ARCH_DIR"
 tar xf archlinux-bootstrap-x86_64.tar.zst -C "$ARCH_DIR/"
 
+# Setup
 echo "Setting up chroot environment..."
 cp /etc/resolv.conf "$BOOTSTRAP_DIR/etc/"
 cp "$WORKSPACE/mirrorlist" "$BOOTSTRAP_DIR/etc/pacman.d/" 2>/dev/null || echo "Warning: mirrorlist not found"
@@ -42,7 +51,6 @@ sudo chroot "$BOOTSTRAP_DIR" /bin/bash -c "
 "
 
 echo "Downloading bubblewrap..."
-# Lucas, replace by `latest` if your releases are reliable
 curl -fsSL "https://github.com/lucasmz1/bubblewrap-musl-static/releases/download/7f9bc5f/bwrap-x86_64" -o bwrap
 chmod +x bwrap
 mv bwrap "$ARCH_DIR/"
@@ -74,7 +82,7 @@ echo "Building AppImage..."
 ARCH=x86_64 ./appimagetool -n "$ARCH_DIR/"
 
 echo "Building AppBundle..."
-./pelf --add-appdir "$ARCH_DIR" --appbundle-id "Virt-Manager-lucasmz1" --output-to "Virt-Manager.dwfs.AppBundle"
+./pelf --add-appdir "$ARCH_DIR/" --appbundle-id "Virt-Manager-lucasmz1" --output-to "Virt-Manager.dwfs.AppBundle"
 
 echo "Build complete!"
 
